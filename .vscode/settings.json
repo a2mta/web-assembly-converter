@@ -51,6 +51,7 @@
         "unordered_map": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "mach_time.h": "c"
+        "mach_time.h": "c",
+        "__config": "cpp"
     }
 }
