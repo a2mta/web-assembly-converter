@@ -5,79 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <script>
-      window.onload = async () => {
-        console.log(Module.HEAPU8, 'HEAPU8');
-        // Module.onRuntimeInitialized = async () => {
-        const callback = addFunction(function (pointer, length) {
-          console.log('I was called from C world!', pointer, length);
-        }, 'vi');
+      window.onload = () => {
+        Module['onRuntimeInitialized'] = async () => {
+          console.log(Module.HEAP8, 'HEAPU8');
+          const callback = addFunction(function (pointer, length) {
+            console.log('I was called from C world!', pointer, length);
+          }, 'vi');
 
-        //   const convert = Module.cwrap('convert', null, [
-        //     'number',
-        //     'number',
-        //     'function',
-        //   ]);
+          const loadFlacFile = async (url) => {
+            const response = await fetch(url);
+            const buffer = await response.arrayBuffer();
+            return buffer;
+          };
 
-        const loadFlacFile = async (url) => {
-          const response = await fetch(url);
-          const buffer = await response.arrayBuffer();
-          return buffer;
-        };
-
-        const passBinaryDataToWasm = (binaryData) => {
-          // Ensure the binary data is a Uint8Array
-          const uint8ArrayData = new Uint8Array(binaryData);
-          // Allocate memory in the WebAssembly module
-          const dataPointer = Module._malloc(uint8ArrayData.length);
-          // Copy data to WebAssembly memory
-          Module.HEAPU8.set(uint8ArrayData, dataPointer);
-          // Define the callback function
-          const callback = addFunction(
-            (processedDataPointer, length) => {
+          const passBinaryDataToWasm = (binaryData) => {
+            // Ensure the binary data is a Uint8Array
+            const uint8ArrayData = new Uint8Array(binaryData);
+            // Allocate memory in the WebAssembly module
+            const dataPointer = Module._malloc(uint8ArrayData.length);
+            // Copy data to WebAssembly memory
+            Module.HEAPU8.set(uint8ArrayData, dataPointer);
+            // Define the callback function
+            const callback = addFunction((processedDataPointer, length) => {
               const processedData = Module.HEAPU8.subarray(
                 processedDataPointer,
                 processedDataPointer + length
               );
               console.log('Processed data:', processedData);
-            //   const blob = new Blob([processedData], { type: 'audio/mpeg' });
-            //   const url = URL.createObjectURL(blob);
-            //   const a = document.createElement('a');
-            //   a.href = url;
-            //   a.download = 'output.mp3';
-            //   document.body.appendChild(a);
-            //   a.click();
-            //   document.body.removeChild(a);
-            //   URL.revokeObjectURL(url);
-            },
-            'vii'
-          );
-          // Call the WebAssembly function
-          Module._convert(dataPointer, uint8ArrayData.length, callback);
-          // Free the allocated memory
-          Module._free(dataPointer);
-          removeFunction(callback);
+              const blob = new Blob([processedData], { type: 'audio/mpeg' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'output.mp3';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }, 'vii');
+            // Call the WebAssembly function
+            Module._processFlac(dataPointer, uint8ArrayData.length, callback);
+            // Free the allocated memory
+            Module._free(dataPointer);
+            removeFunction(callback);
+          };
+
+          const buffer = await loadFlacFile('./input.flac');
+          passBinaryDataToWasm(buffer);
+          console.log('FETCHING');
+          fetch('./input.flac')
+            .then((response) => response.arrayBuffer())
+            .then((buffer) => {
+              const memory = new Uint8Array(Module.wasmMemory.buffer);
+              const dataPointer = Module._malloc(buffer.byteLength);
+              console.log(dataPointer, 'POINTER');
+              memory.set(new Uint8Array(binaryData), dataPointer);
+              instance.exports.processFlac(dataPointer, binaryData.byteLength);
+              instance.exports.free(dataPointer);
+
+              // Execute the convert function with an empty Uint8Array as the second parameter
+              convert(dataPointer, buffer.byteLength, callback);
+            });
         };
-
-        const buffer = await loadFlacFile('./input.flac');
-        passBinaryDataToWasm(buffer);
-
-        // fetch('./input.flac')
-        //   .then((response) => response.arrayBuffer())
-        //   .then((buffer) => {
-        //     const memory = new Uint8Array(Module.wasmMemory.buffer);
-        //     const dataPointer = Module._malloc(buffer.byteLength);
-        //     console.log(dataPointer, 'POINTER');
-        //     //   memory.set(new Uint8Array(binaryData), dataPointer);
-        //     //   instance.exports.processFlac(dataPointer, binaryData.byteLength);
-        //     //   instance.exports.free(dataPointer);
-
-        //     // Execute the convert function with an empty Uint8Array as the second parameter
-        //     convert(dataPointer, buffer.byteLength, callback);
-        //   });
-        // };
       };
     </script>
-    <script src="./convert.js"></script>
+    <script src="./process_flac.js"></script>
   </head>
   <body></body>
 </html>
