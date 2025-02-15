@@ -1922,6 +1922,36 @@ async function createWasm() {
       return false;
     };
 
+  
+  var runtimeKeepaliveCounter = 0;
+  var keepRuntimeAlive = () => noExitRuntime || runtimeKeepaliveCounter > 0;
+  var _proc_exit = (code) => {
+      EXITSTATUS = code;
+      if (!keepRuntimeAlive()) {
+        Module['onExit']?.(code);
+        ABORT = true;
+      }
+      quit_(code, new ExitStatus(code));
+    };
+  
+  
+  /** @suppress {duplicate } */
+  /** @param {boolean|number=} implicit */
+  var exitJS = (status, implicit) => {
+      EXITSTATUS = status;
+  
+      checkUnflushedContent();
+  
+      // if exit() was called explicitly, warn the user if the runtime isn't actually being shut down
+      if (keepRuntimeAlive() && !implicit) {
+        var msg = `program exited (with status: ${status}), but keepRuntimeAlive() is set (counter=${runtimeKeepaliveCounter}) due to an async operation, so halting execution but not exiting the runtime or preventing further async execution (you can use emscripten_force_exit, if you want to force a true shutdown)`;
+        err(msg);
+      }
+  
+      _proc_exit(status);
+    };
+  var _exit = exitJS;
+
   var PATH = {
   isAbs:(path) => path.charAt(0) === '/',
   splitPath:(filename) => {
@@ -4956,6 +4986,8 @@ var wasmImports = {
   /** @export */
   emscripten_resize_heap: _emscripten_resize_heap,
   /** @export */
+  exit: _exit,
+  /** @export */
   fd_close: _fd_close,
   /** @export */
   fd_read: _fd_read,
@@ -4964,6 +4996,8 @@ var wasmImports = {
   /** @export */
   fd_write: _fd_write,
   /** @export */
+  invoke_i,
+  /** @export */
   invoke_ii,
   /** @export */
   invoke_iii,
@@ -4971,6 +5005,8 @@ var wasmImports = {
   invoke_iiii,
   /** @export */
   invoke_iiiii,
+  /** @export */
+  invoke_iiiiii,
   /** @export */
   invoke_iiiiiiiiiii,
   /** @export */
@@ -5008,17 +5044,6 @@ var ___cxa_decrement_exception_refcount = createExportWrapper('__cxa_decrement_e
 var ___get_exception_message = createExportWrapper('__get_exception_message', 3);
 var ___cxa_can_catch = createExportWrapper('__cxa_can_catch', 3);
 var ___cxa_get_exception_ptr = createExportWrapper('__cxa_get_exception_ptr', 1);
-
-function invoke_iiii(index,a1,a2,a3) {
-  var sp = stackSave();
-  try {
-    return getWasmTableEntry(index)(a1,a2,a3);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
 
 function invoke_iii(index,a1,a2) {
   var sp = stackSave();
@@ -5075,10 +5100,43 @@ function invoke_ii(index,a1) {
   }
 }
 
+function invoke_i(index) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)();
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiii(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
     getWasmTableEntry(index)(a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiii(index,a1,a2,a3) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -5137,7 +5195,6 @@ var missingLibrarySymbols = [
   'readI53FromU64',
   'convertI32PairToI53Checked',
   'getTempRet0',
-  'exitJS',
   'inetPton4',
   'inetNtop4',
   'inetPton6',
@@ -5152,7 +5209,6 @@ var missingLibrarySymbols = [
   'getDynCaller',
   'dynCall',
   'handleException',
-  'keepRuntimeAlive',
   'runtimeKeepalivePush',
   'runtimeKeepalivePop',
   'callUserCallback',
@@ -5300,6 +5356,7 @@ var unexportedSymbols = [
   'setTempRet0',
   'ptrToString',
   'zeroMemory',
+  'exitJS',
   'getHeapMax',
   'growMemory',
   'ENV',
@@ -5313,6 +5370,7 @@ var unexportedSymbols = [
   'emscriptenLog',
   'readEmAsmArgsArray',
   'jstoi_s',
+  'keepRuntimeAlive',
   'asyncLoad',
   'alignMemory',
   'mmapAlloc',
@@ -5560,20 +5618,20 @@ const loadFile = async () => {
     const callback = addFunction((processedDataPointer, length) => {
       console.log('CALLBACK');
 
-    //   const processedData = Module.HEAPU8.subarray(
-    //     processedDataPointer,
-    //     processedDataPointer + length
-    //   );
-    //   console.log('Processed data:', processedData);
-    //   const blob = new Blob([processedData], { type: 'audio/mpeg' });
-    //   const url = URL.createObjectURL(blob);
-    //   const a = document.createElement('a');
-    //   a.href = url;
-    //   a.download = 'output.mp3';
-    //   document.body.appendChild(a);
-    //   a.click();
-    //   document.body.removeChild(a);
-    //   URL.revokeObjectURL(url);
+      const processedData = Module.HEAPU8.subarray(
+        processedDataPointer,
+        processedDataPointer + length
+      );
+      console.log('Processed data:', processedData);
+      const blob = new Blob([processedData], { type: 'audio/mpeg' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'output.mp3';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }, 'vii');
     // Call the WebAssembly function
     api.processFlac(dataPointer, uint8ArrayData.length, callback);

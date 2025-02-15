@@ -16,23 +16,26 @@ struct PCMBuffer
     unsigned sampleRate;
     unsigned channels;
 };
+PCMBuffer pcmBuffer;
 
 // Callback function for writing decoded FLAC data to PCM buffer
 FLAC__StreamDecoderWriteStatus write_callback(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 *const buffer[], void *client_data)
 {
-    PCMBuffer *pcmBuffer = static_cast<PCMBuffer *>(client_data);
-    pcmBuffer->sampleRate = frame->header.sample_rate;
-    pcmBuffer->channels = frame->header.channels;
+    size_t blockSize = frame->header.blocksize;
+    size_t channels = frame->header.channels;
 
-    for (size_t i = 0; i < frame->header.blocksize; ++i)
+    pcmBuffer.sampleRate = frame->header.sample_rate;
+    pcmBuffer.channels = channels;
+
+    for (size_t i = 0; i < blockSize; ++i)
     {
-        for (size_t ch = 0; ch < pcmBuffer->channels; ++ch)
+        for (size_t ch = 0; ch < channels; ++ch)
         {
-            pcmBuffer->data.push_back(buffer[ch][i]);
+            pcmBuffer.data.push_back(static_cast<int16_t>(buffer[ch][i]));
         }
     }
+    emscripten_log(EM_LOG_CONSOLE, "Decoded chunk: %d samples, %d channels", blockSize, channels);
 
-    emscripten_log(EM_LOG_CONSOLE, "Writing PCM data to buffer. Sample rate: %u, Channels: %u", pcmBuffer->sampleRate, pcmBuffer->channels);
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
@@ -64,19 +67,17 @@ void error_callback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderError
 // Callback function for reading FLAC data
 FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *decoder, FLAC__byte buffer[], size_t *bytes, void *client_data)
 {
-    std::vector<uint8_t> *flacDataChunk = static_cast<std::vector<uint8_t> *>(client_data);
-    static int logCounter = 0;
+    std::vector<uint8_t> *flacData = static_cast<std::vector<uint8_t> *>(client_data);
 
-    if (logCounter++ % 100 == 0) // Log every 100th call
+    if (*bytes > flacData->size())
     {
-        emscripten_log(EM_LOG_CONSOLE, "Reading FLAC data: %zu bytes being read, %zu bytes requested, client data size: %zu", flacDataChunk->size(), *bytes, flacDataChunk->size());
+        *bytes = flacData->size();
     }
 
     if (*bytes > 0)
     {
-        std::copy(flacDataChunk->begin(), flacDataChunk->begin() + *bytes, buffer);
-        flacDataChunk->erase(flacDataChunk->begin(), flacDataChunk->begin() + *bytes);
-        emscripten_log(EM_LOG_CONSOLE, "FLAC data after read: %zu bytes remaining", flacDataChunk->size()); // Log remaining bytes after read
+        std::copy(flacData->begin(), flacData->begin() + *bytes, buffer);
+        flacData->erase(flacData->begin(), flacData->begin() + *bytes);
         return FLAC__STREAM_DECODER_READ_STATUS_CONTINUE;
     }
     else
@@ -114,7 +115,6 @@ extern "C"
         // Initialize FLAC decoder
         FLAC__StreamDecoder *decoder = FLAC__stream_decoder_new();
 
-        PCMBuffer pcmBuffer;
         std::vector<uint8_t> flacData(dataPointer, dataPointer + length);
         // Set up FLAC decoder with callbacks
         FLAC__stream_decoder_set_md5_checking(decoder, true);
@@ -156,22 +156,22 @@ extern "C"
 
         // // Encode PCM to MP3 using LAME
         emscripten_log(EM_LOG_CONSOLE, "Initializing LAME encoder");
-        // lame_t lame = lame_init();
-        // lame_set_in_samplerate(lame, pcmBuffer.sampleRate);
-        // lame_set_num_channels(lame, pcmBuffer.channels);
-        // lame_set_quality(lame, 5);
-        // lame_init_params(lame);
+        lame_t lame = lame_init();
+        lame_set_in_samplerate(lame, pcmBuffer.sampleRate);
+        lame_set_num_channels(lame, pcmBuffer.channels);
+        lame_set_quality(lame, 5);
+        lame_init_params(lame);
 
-        // // Overestimate size of MP3 buffer
-        // size_t pcmSize = pcmBuffer.data.size() * sizeof(int16_t);
-        // std::vector<uint8_t> mp3Buffer(pcmSize);
-        // int mp3Size = lame_encode_buffer_interleaved(lame, pcmBuffer.data.data(), pcmBuffer.data.size() / pcmBuffer.channels, mp3Buffer.data(), mp3Buffer.size());
+        // Overestimate size of MP3 buffer
+        size_t pcmSize = pcmBuffer.data.size() * sizeof(int16_t);
+        std::vector<uint8_t> mp3Buffer(pcmSize);
+        int mp3Size = lame_encode_buffer_interleaved(lame, pcmBuffer.data.data(), pcmBuffer.data.size() / pcmBuffer.channels, mp3Buffer.data(), mp3Buffer.size());
 
-        // lame_close(lame);
-        // emscripten_log(EM_LOG_CONSOLE, "MP3 encoding completed. Size: %d bytes", mp3Size);
-        // if (mp3Size > 0)
-        // {
-        //     callback(mp3Buffer.data(), mp3Size);
-        // }
+        lame_close(lame);
+        emscripten_log(EM_LOG_CONSOLE, "MP3 encoding completed. Size: %d bytes", mp3Size);
+        if (mp3Size > 0)
+        {
+            callback(mp3Buffer.data(), mp3Size);
+        }
     }
 }

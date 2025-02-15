@@ -30,20 +30,20 @@ const loadFile = async () => {
     const callback = addFunction((processedDataPointer, length) => {
       console.log('CALLBACK');
 
-    //   const processedData = Module.HEAPU8.subarray(
-    //     processedDataPointer,
-    //     processedDataPointer + length
-    //   );
-    //   console.log('Processed data:', processedData);
-    //   const blob = new Blob([processedData], { type: 'audio/mpeg' });
-    //   const url = URL.createObjectURL(blob);
-    //   const a = document.createElement('a');
-    //   a.href = url;
-    //   a.download = 'output.mp3';
-    //   document.body.appendChild(a);
-    //   a.click();
-    //   document.body.removeChild(a);
-    //   URL.revokeObjectURL(url);
+      const processedData = Module.HEAPU8.subarray(
+        processedDataPointer,
+        processedDataPointer + length
+      );
+      console.log('Processed data:', processedData);
+      const blob = new Blob([processedData], { type: 'audio/mpeg' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'output.mp3';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }, 'vii');
     // Call the WebAssembly function
     api.processFlac(dataPointer, uint8ArrayData.length, callback);
