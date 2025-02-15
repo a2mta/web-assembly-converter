@@ -52,6 +52,8 @@
         "variant": "cpp",
         "vector": "cpp",
         "mach_time.h": "c",
-        "__config": "cpp"
+        "__config": "cpp",
+        "__tree": "cpp",
+        "map": "cpp"
     }
 }
