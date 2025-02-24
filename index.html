@@ -4,9 +4,44 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="stylesheet" href="./style.css" />
+    <style>
+      .flex {
+        display: flex;
+      }
+      .bar {
+        width: 0%;
+        height: 20px;
+        background-color: red;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+      .h-full {
+        height: 100%;
+      }
+      .w-full {
+        width: 100%;
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+    </style>
     <body>
-      <button id="load" onclick="loadFile">click</button>
+      <div class="flex items-center justify-center h-full">
+        <div class="flex w-full items-center flex-col">
+          <div class="dropzone flex justify-center items-center">
+            <!-- <button id="load" onclick="loadFile">click</button> -->
+            <span>Drop me a file and i will convert it</span>
+            <div id="bar" class="bar flex"></div>
+          </div>
+        </div>
+      </div>
     </body>
+    <script src="./interactivity.js"></script>
     <script src="./process_flac.js"></script>
   </head>
 </html>
