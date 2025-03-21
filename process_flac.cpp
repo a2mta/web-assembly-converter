@@ -18,16 +18,6 @@ struct PCMBuffer
 };
 PCMBuffer pcmBuffer;
 
-// Global variables for state management
-FLAC__StreamDecoder *decoder = nullptr;
-std::vector<uint8_t> flacData;
-CallbackType globalCallback;
-lame_t lame;
-size_t pcmOffset = 0;
-std::vector<uint8_t> mp3Buffer;
-std::vector<uint8_t> accumulatedMp3Data;
-bool isProcessingFlac = true;
-
 // Callback function for writing decoded FLAC data to PCM buffer
 FLAC__StreamDecoderWriteStatus write_callback(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 *const buffer[], void *client_data)
 {
@@ -44,24 +34,7 @@ FLAC__StreamDecoderWriteStatus write_callback(const FLAC__StreamDecoder *decoder
             pcmBuffer.data.push_back(static_cast<int16_t>(buffer[ch][i]));
         }
     }
-
-    // Calculate percentage processed
-    std::vector<uint8_t> *flacData = static_cast<std::vector<uint8_t> *>(client_data);
-    size_t totalSize = flacData->size() + pcmBuffer.data.size() * sizeof(int16_t);
-    size_t processedSize = pcmBuffer.data.size() * sizeof(int16_t);
-    float percentage = (static_cast<float>(processedSize) / totalSize) * 100;
-
-    // Throttle callback calls
-    static float lastPercentage = 0.0;
-    if (percentage - lastPercentage >= 1.0 || percentage == 100.0)
-    {
-        lastPercentage = percentage;
-        // Call JavaScript callback with percentage
-        EM_ASM({
-            if (typeof Module.onProgress === 'function') {
-                Module.onProgress($0);
-            } }, percentage);
-    }
+    emscripten_log(EM_LOG_CONSOLE, "Decoded chunk: %d samples, %d channels", blockSize, channels);
 
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
@@ -81,6 +54,14 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
 void error_callback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data)
 {
     emscripten_log(EM_LOG_ERROR, "FLAC decoder error: %s", FLAC__StreamDecoderErrorStatusString[status]);
+    static int logCounter = 0;
+    if (logCounter++ % 100 == 0) // Log every 100th call
+    {
+    }
+    if (status == FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC)
+    {
+        emscripten_log(EM_LOG_ERROR, "FLAC decoder lost sync. Possible corrupted data.");
+    }
 }
 
 // Callback function for reading FLAC data
@@ -101,7 +82,6 @@ FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *decoder, 
     }
     else
     {
-        emscripten_log(EM_LOG_CONSOLE, "STREAM HAS ENDED");
         return FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
     }
 }
@@ -115,74 +95,6 @@ FLAC__bool eof_callback(const FLAC__StreamDecoder *decoder, void *client_data)
         emscripten_log(EM_LOG_CONSOLE, "FLAC data is empty");
     }
     return flacData->empty();
-}
-
-// Function to process FLAC data in chunks
-void processFlacChunk()
-{
-    if (isProcessingFlac)
-    {
-        if (!FLAC__stream_decoder_process_single(decoder) || FLAC__stream_decoder_get_state(decoder) == FLAC__STREAM_DECODER_END_OF_STREAM)
-        {
-            emscripten_log(EM_LOG_CONSOLE, "Finished processing FLAC stream");
-            FLAC__stream_decoder_finish(decoder);
-            FLAC__stream_decoder_delete(decoder);
-            decoder = nullptr;
-
-            if (pcmBuffer.data.empty())
-            {
-                emscripten_log(EM_LOG_ERROR, "PCM buffer is empty");
-                emscripten_cancel_main_loop();
-                return;
-            }
-
-            // Initialize LAME encoder
-            emscripten_log(EM_LOG_CONSOLE, "Initializing LAME encoder");
-            lame = lame_init();
-            lame_set_in_samplerate(lame, pcmBuffer.sampleRate);
-            lame_set_num_channels(lame, pcmBuffer.channels);
-            lame_set_quality(lame, 5);
-            lame_init_params(lame);
-
-            mp3Buffer.resize(1024 * 1024); // 1MB buffer
-            pcmOffset = 0;
-            accumulatedMp3Data.clear();
-            isProcessingFlac = false;
-        }
-    }
-    else
-    {
-        // Encode PCM to MP3 in chunks
-        size_t remaining = pcmBuffer.data.size() * sizeof(int16_t) - pcmOffset;
-        size_t toEncode = std::min(mp3Buffer.size(), remaining);
-        int mp3Size = lame_encode_buffer_interleaved(lame, pcmBuffer.data.data() + pcmOffset / sizeof(int16_t), toEncode / sizeof(int16_t) / pcmBuffer.channels, mp3Buffer.data(), mp3Buffer.size());
-
-        if (mp3Size > 0)
-        {
-            accumulatedMp3Data.insert(accumulatedMp3Data.end(), mp3Buffer.begin(), mp3Buffer.begin() + mp3Size);
-        }
-
-        pcmOffset += toEncode;
-
-        if (pcmOffset >= pcmBuffer.data.size() * sizeof(int16_t))
-        {
-            mp3Size = lame_encode_flush(lame, mp3Buffer.data(), mp3Buffer.size());
-            if (mp3Size > 0)
-            {
-                accumulatedMp3Data.insert(accumulatedMp3Data.end(), mp3Buffer.begin(), mp3Buffer.begin() + mp3Size);
-            }
-
-            lame_close(lame);
-            emscripten_log(EM_LOG_CONSOLE, "MP3 encoding completed.");
-
-            if (globalCallback)
-            {
-                globalCallback(accumulatedMp3Data.data(), accumulatedMp3Data.size());
-            }
-
-            emscripten_cancel_main_loop();
-        }
-    }
 }
 
 // Extern "C" block to expose the function to JavaScript
@@ -201,11 +113,9 @@ extern "C"
     void processFlac(const uint8_t *dataPointer, size_t length, CallbackType callback)
     {
         // Initialize FLAC decoder
-        decoder = FLAC__stream_decoder_new();
+        FLAC__StreamDecoder *decoder = FLAC__stream_decoder_new();
 
-        flacData.assign(dataPointer, dataPointer + length);
-        globalCallback = callback;
-
+        std::vector<uint8_t> flacData(dataPointer, dataPointer + length);
         // Set up FLAC decoder with callbacks
         FLAC__stream_decoder_set_md5_checking(decoder, true);
         FLAC__StreamDecoderInitStatus initStatus = FLAC__stream_decoder_init_stream(
@@ -220,7 +130,7 @@ extern "C"
             error_callback,
             &flacData);
 
-        emscripten_log(EM_LOG_CONSOLE, "DAT POINTER: %d, DATA LENGTH: %d", dataPointer, length);
+        emscripten_log(EM_LOG_CONSOLE, "DATA POINTER: %d, DATA LENGTH: %d", dataPointer, length);
 
         if (initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK)
         {
@@ -229,7 +139,39 @@ extern "C"
             return;
         }
 
-        isProcessingFlac = true;
-        emscripten_set_main_loop(processFlacChunk, 0, 1);
+        if (!FLAC__stream_decoder_process_until_end_of_stream(decoder))
+        {
+            emscripten_log(EM_LOG_CONSOLE, "Error processing FLAC stream\n");
+        }
+        emscripten_log(EM_LOG_CONSOLE, "Finished processing FLAC stream");
+
+        FLAC__stream_decoder_finish(decoder);
+        FLAC__stream_decoder_delete(decoder);
+
+        if (pcmBuffer.data.empty())
+        {
+            emscripten_log(EM_LOG_ERROR, "PCM buffer is empty");
+            return;
+        }
+
+        // // Encode PCM to MP3 using LAME
+        emscripten_log(EM_LOG_CONSOLE, "Initializing LAME encoder");
+        lame_t lame = lame_init();
+        lame_set_in_samplerate(lame, pcmBuffer.sampleRate);
+        lame_set_num_channels(lame, pcmBuffer.channels);
+        lame_set_quality(lame, 5);
+        lame_init_params(lame);
+
+        // Overestimate size of MP3 buffer
+        size_t pcmSize = pcmBuffer.data.size() * sizeof(int16_t);
+        std::vector<uint8_t> mp3Buffer(pcmSize);
+        int mp3Size = lame_encode_buffer_interleaved(lame, pcmBuffer.data.data(), pcmBuffer.data.size() / pcmBuffer.channels, mp3Buffer.data(), mp3Buffer.size());
+
+        lame_close(lame);
+        emscripten_log(EM_LOG_CONSOLE, "MP3 encoding completed. Size: %d bytes", mp3Size);
+        if (mp3Size > 0)
+        {
+            callback(mp3Buffer.data(), mp3Size);
+        }
     }
 }

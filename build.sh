@@ -1,6 +1,7 @@
 #!/bin/bash
 
 EMCC_DEBUG=1 emcc -O3 process_flac.cpp -o process_flac.js \
+    -s USE_PTHREADS=1 \
     -s EXPORTED_FUNCTIONS='["_processFlac", "_malloc","_free", "_create_buffer"]' \
     -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "addFunction", "wasmMemory"]' \
     -s NO_DISABLE_EXCEPTION_CATCHING \
