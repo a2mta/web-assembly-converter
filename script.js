@@ -1,5 +1,6 @@
 let callback;
 let api = {};
+let worker;
 const bar = document.getElementById('bar');
 const loadFlacFile = async (url) => {
   const response = await fetch(url);
@@ -13,9 +14,10 @@ const callBackFunction = (processedDataPointer, length) => {
   const processedData = Module.HEAPU8.subarray(
     processedDataPointer,
     processedDataPointer + length
-  );
-  console.log('Processed data:', processedData);
+  ).slice().buffer;
+
   const blob = new Blob([processedData], { type: 'audio/mpeg' });
+  console.log('Processed data:', processedData, blob);
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -32,7 +34,7 @@ Module.onRuntimeInitialized = async () => {
     processFlac: Module.cwrap(
       'processFlac',
       null,
-      ['number', 'number', 'number'],
+      ['number', 'number', 'number', 'number'],
       { async: true }
     ), // Add async option
     create_buffer: Module.cwrap('create_buffer', 'number', ['number']),
@@ -47,47 +49,21 @@ const passBinaryDataToWasm = (binaryData) => {
   const dataPointer = api.create_buffer(uint8ArrayData.length);
   // Copy data to WebAssembly memory
   Module.HEAPU8.set(uint8ArrayData, dataPointer);
+
   const start = new Date();
   console.log('Start processing', start);
-  api.processFlac(dataPointer, uint8ArrayData.length, callback);
+
+  // Create the worker if it doesn't exist
+  if (!worker) {
+    worker = new Worker('process_worker.js');
+  }
+
+  console.log(worker);
+
+  // Pass the worker handle and data to the processFlac function
+  api.processFlac(worker, dataPointer, uint8ArrayData.length, callback);
+
   console.log('End processing', new Date() - start);
-  // .then(() => {
-  //   // Free the allocated memory
-  //   api.free(dataPointer);
-  //   removeFunction(callback);
-  // })
-  // .catch((err) => {
-  //   console.error('Error processing FLAC:', err);
-  //   api.free(dataPointer);
-  //   removeFunction(callback);
-  // });
-
-  //   const processChunk = (start) => {
-  //     const chunkSize = 1024 * 1024; // 1MB chunks
-  //     const end = Math.min(start + chunkSize, uint8ArrayData.length);
-  //     const chunk = uint8ArrayData.subarray(start, end);
-  //     Module.HEAPU8.set(chunk, dataPointer + start);
-
-  //     if (end < uint8ArrayData.length) {
-  //       setTimeout(() => processChunk(end), 0);
-  //     } else {
-  //       // Call the WebAssembly function
-  //       api
-  //         .processFlac(dataPointer, uint8ArrayData.length, callback)
-  //         .then(() => {
-  //           // Free the allocated memory
-  //           api.free(dataPointer);
-  //           removeFunction(callback);
-  //         })
-  //         .catch((err) => {
-  //           console.error('Error processing FLAC:', err);
-  //           api.free(dataPointer);
-  //           removeFunction(callback);
-  //         });
-  //     }
-  //   };
-
-  //   processChunk(0);
 };
 
 // Define the progress callback
@@ -95,10 +71,3 @@ Module.onProgress = (percentage) => {
   bar.style.width = `${Math.round(percentage)}%`;
   console.log(`Processing: ${percentage.toFixed(2)}%`);
 };
-
-const loadFile = async () => {
-  const buffer = await loadFlacFile('./input.flac');
-  passBinaryDataToWasm(buffer);
-};
-
-document.getElementById('load').addEventListener('click', loadFile);

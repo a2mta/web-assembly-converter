@@ -54,6 +54,8 @@
         "mach_time.h": "c",
         "__config": "cpp",
         "__tree": "cpp",
-        "map": "cpp"
-    }
+        "map": "cpp",
+        "lame": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

@@ -1,3 +1,7 @@
+// document.addEventListener('DOMContentLoaded', () => {
+
+// })
+
 const dropZone = document.querySelector('.dropzone');
 dropZone.addEventListener('dragover', (event) => {
   event.preventDefault();
