@@ -1,0 +1,22 @@
+util.o: util.c ../config.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/stdlib.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdlib.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/features.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/alltypes.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/alloca.h \
+  util.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/time.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/time.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/sys/time.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/sys/select.h
+../config.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/stdlib.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdlib.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/features.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/alltypes.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/alloca.h:
+util.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/time.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/time.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/sys/time.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/sys/select.h:

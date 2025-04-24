@@ -1,0 +1,94 @@
+main.o: main.c ../../../../config.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdio.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/wasi/api.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stddef.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stddef.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_header_macro.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_ptrdiff_t.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_size_t.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_wchar_t.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_null.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_max_align_t.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_offsetof.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stdint.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdint.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/alltypes.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/stdint.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/features.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/stdlib.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdlib.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/alloca.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/string.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/string.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/strings.h \
+  ../../../../include/share/compat.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/unistd.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/posix.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/inttypes.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/inttypes.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/sys/types.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/endian.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/sys/select.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/utime.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/stdarg.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stdarg.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdarg.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg_header_macro.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg___gnuc_va_list.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg_va_list.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg_va_arg.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg___va_copy.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg_va_copy.h \
+  ../../../../include/FLAC/metadata.h ../../../../include/FLAC/export.h \
+  ../../../../include/FLAC/callback.h \
+  ../../../../include/FLAC/ordinals.h ../../../../include/FLAC/format.h \
+  ../../../../include/FLAC/stream_encoder.h \
+  ../../../../include/FLAC/stream_decoder.h
+../../../../config.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdio.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/wasi/api.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stddef.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stddef.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_header_macro.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_ptrdiff_t.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_size_t.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_wchar_t.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_null.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_max_align_t.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_offsetof.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stdint.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdint.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/alltypes.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/stdint.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/features.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/stdlib.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdlib.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/alloca.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/string.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/string.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/strings.h:
+../../../../include/share/compat.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/unistd.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/posix.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/inttypes.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/inttypes.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/sys/types.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/endian.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/sys/select.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/utime.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/stdarg.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stdarg.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdarg.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg_header_macro.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg___gnuc_va_list.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg_va_list.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg_va_arg.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg___va_copy.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stdarg_va_copy.h:
+../../../../include/FLAC/metadata.h:
+../../../../include/FLAC/export.h:
+../../../../include/FLAC/callback.h:
+../../../../include/FLAC/ordinals.h:
+../../../../include/FLAC/format.h:
+../../../../include/FLAC/stream_encoder.h:
+../../../../include/FLAC/stream_decoder.h:

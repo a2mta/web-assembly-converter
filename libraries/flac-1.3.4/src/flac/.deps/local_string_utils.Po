@@ -1,0 +1,54 @@
+local_string_utils.o: local_string_utils.c ../../config.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/string.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/string.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/features.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/alltypes.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/strings.h \
+  utils.h ../../include/FLAC/ordinals.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stdint.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdint.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/stdint.h \
+  ../../include/FLAC/format.h ../../include/FLAC/export.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdio.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/wasi/api.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stddef.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stddef.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_header_macro.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_ptrdiff_t.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_size_t.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_wchar_t.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_null.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_max_align_t.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_offsetof.h \
+  local_string_utils.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/stdlib.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdlib.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/alloca.h
+../../config.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/string.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/string.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/features.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/alltypes.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/strings.h:
+utils.h:
+../../include/FLAC/ordinals.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stdint.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdint.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/stdint.h:
+../../include/FLAC/format.h:
+../../include/FLAC/export.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdio.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/wasi/api.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stddef.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stddef.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_header_macro.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_ptrdiff_t.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_size_t.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_wchar_t.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_null.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_max_align_t.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/__stddef_offsetof.h:
+local_string_utils.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/compat/stdlib.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdlib.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/alloca.h:

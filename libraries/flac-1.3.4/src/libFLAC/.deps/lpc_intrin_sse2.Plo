@@ -1,0 +1,13 @@
+lpc_intrin_sse2.lo: lpc_intrin_sse2.c ../../config.h \
+  include/private/cpu.h ../../include/FLAC/ordinals.h \
+  /home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stdint.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdint.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/alltypes.h \
+  /home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/stdint.h
+../../config.h:
+include/private/cpu.h:
+../../include/FLAC/ordinals.h:
+/home/parallels/Downloads/emsdk-main/upstream/lib/clang/20/include/stdint.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/stdint.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/alltypes.h:
+/home/parallels/Downloads/emsdk-main/upstream/emscripten/cache/sysroot/include/bits/stdint.h:
