@@ -15,18 +15,25 @@ module.exports = {
   ui: {
     port: 3001,
   },
-  files: ['./index.html', './process_flac.js'],
+  files: ['./index.html', './src/process_flac.js'],
   watchEvents: ['change'],
-  watch: true,
+  watch: false,
   ignore: [],
   single: false,
   watchOptions: {
     ignoreInitial: true,
   },
-  server: true,
+  server: {
+    baseDir: './',
+    index: 'index.html',
+    routes: {
+    //   'build': 'build',
+    //   './src': 'src',
+    },
+  },
   port: 3000,
   middleware: [
-    function (req, res, next) {
+    function (_req, res, next) {
       res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
       res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
       res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');

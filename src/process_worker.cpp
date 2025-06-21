@@ -82,29 +82,33 @@ FLAC__bool eof_callback(const FLAC__StreamDecoder *decoder, void *client_data)
 
 extern "C"
 {
-    EMSCRIPTEN_KEEPALIVE
-    void processWorker(char *dataPointer, int length)
-    {
-        // Clear the PCM buffer for this new processing
-        pcmBuffer.data.clear();
-        pcmBuffer.sampleRate = 0;
-        pcmBuffer.channels = 0;
 
-        // Check if we received valid data
+    // Function to create a buffer
+    EMSCRIPTEN_KEEPALIVE
+    uint8_t *createBuffer(int dataSize)
+    {
+        emscripten_log(EM_LOG_CONSOLE, "CREATING POINTER, DATA LENGTH: %d", dataSize);
+        return static_cast<uint8_t *>(malloc(dataSize * sizeof(uint8_t)));
+    }
+
+    EMSCRIPTEN_KEEPALIVE
+    void processFlac(uint8_t *dataPointer, int length)
+    {
+        emscripten_log(EM_LOG_CONSOLE, "processFlac called with dataPointer: %p, length: %d", dataPointer, length);
+
         if (!dataPointer || length <= 0)
         {
-            emscripten_log(EM_LOG_ERROR, "Invalid data received in worker: pointer=%p, length=%d", dataPointer, length);
+            emscripten_log(EM_LOG_ERROR, "Invalid dataPointer or length");
             return;
         }
 
-        emscripten_log(EM_LOG_CONSOLE, "Worker received data: pointer=%p, length=%d", dataPointer, length);
+        // Log the received data for debugging
+        emscripten_log(EM_LOG_CONSOLE, "Received dataPointer: %p, length: %d", dataPointer, length);
 
-        // Initialize FLAC decoder
+        // Process the FLAC data as before
+        std::vector<uint8_t> flacData(dataPointer, dataPointer + length);
         FLAC__StreamDecoder *decoder = FLAC__stream_decoder_new();
 
-        std::vector<uint8_t> flacData(dataPointer, dataPointer + length);
-        // Set up FLAC decoder with callbacks
-        FLAC__stream_decoder_set_md5_checking(decoder, true);
         FLAC__StreamDecoderInitStatus initStatus = FLAC__stream_decoder_init_stream(
             decoder,
             read_callback,
@@ -117,72 +121,21 @@ extern "C"
             error_callback,
             &flacData);
 
-        emscripten_log(EM_LOG_CONSOLE, "DATA POINTER: %d, DATA LENGTH: %d", dataPointer, length);
-
         if (initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK)
         {
-            emscripten_log(EM_LOG_ERROR, "Failed to initialize FLAC decoder: %s", FLAC__StreamDecoderInitStatusString[initStatus]);
+            emscripten_log(EM_LOG_ERROR, "Failed to initialize FLAC decoder");
             FLAC__stream_decoder_delete(decoder);
             return;
         }
 
         if (!FLAC__stream_decoder_process_until_end_of_stream(decoder))
         {
-            emscripten_log(EM_LOG_CONSOLE, "Error processing FLAC stream\n");
+            emscripten_log(EM_LOG_ERROR, "Failed to process FLAC stream");
         }
-        emscripten_log(EM_LOG_CONSOLE, "Finished processing FLAC stream");
 
         FLAC__stream_decoder_finish(decoder);
         FLAC__stream_decoder_delete(decoder);
 
-        if (pcmBuffer.data.empty())
-        {
-            emscripten_log(EM_LOG_ERROR, "PCM buffer is empty");
-            return;
-        }
-
-        // // Encode PCM to MP3 using LAME
-        emscripten_log(EM_LOG_CONSOLE, "Initializing LAME encoder");
-        lame_t lame = lame_init();
-        lame_set_in_samplerate(lame, pcmBuffer.sampleRate);
-        lame_set_num_channels(lame, pcmBuffer.channels);
-        lame_set_quality(lame, 5);
-        lame_init_params(lame);
-
-        // Overestimate size of MP3 buffer
-        size_t pcmSize = pcmBuffer.data.size() * sizeof(int16_t);
-        std::vector<uint8_t> mp3Buffer(pcmSize);
-        int mp3Size = lame_encode_buffer_interleaved(lame, pcmBuffer.data.data(), pcmBuffer.data.size() / pcmBuffer.channels, mp3Buffer.data(), mp3Buffer.size());
-
-        lame_close(lame);
-        emscripten_log(EM_LOG_CONSOLE, "MP3 encoding completed. Size: %d bytes", mp3Size);
-
-        if (mp3Size > 0)
-        {
-            char *mp3Copy = static_cast<char *>(malloc(mp3Size));
-            if (mp3Copy)
-            {
-                memcpy(mp3Copy, mp3Buffer.data(), mp3Size);
-                emscripten_worker_respond(mp3Copy, mp3Size);
-                free(mp3Copy); // Free memory if respond fails
-            }
-            else
-            {
-                const char *error_msg = "Failed to allocate memory for MP3 data";
-                emscripten_worker_respond(const_cast<char *>(error_msg), strlen(error_msg));
-            }
-        }
-        else
-        {
-            const char *error_msg = "MP3 encoding failed";
-            emscripten_worker_respond(const_cast<char *>(error_msg), strlen(error_msg));
-        }
-
-        // Clear PCM buffer to free memory
-        pcmBuffer.data.clear();
-        pcmBuffer.data.shrink_to_fit();
-        // Clear MP3 buffer to free memory
-        mp3Buffer.clear();
-        mp3Buffer.shrink_to_fit();
+        emscripten_log(EM_LOG_CONSOLE, "Finished processing FLAC stream");
     }
 }

@@ -55,7 +55,10 @@
         "__config": "cpp",
         "__tree": "cpp",
         "map": "cpp",
-        "lame": "cpp"
+        "lame": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp",
+        "strstream": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
